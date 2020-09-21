@@ -7,17 +7,13 @@
 </head>
 <body>
 <div layout:fragment="content" class="container body-content">
-    <div class="jumbotron">
-        <h1>BusBoard</h1>
-        <p class="lead">For all your bus info needs. Enter a postcode below and click enter to see bus times for that location.</p>
-    </div>
     <div class="row">
         <div class="col-md-12">
-            <form id="messageForm" th:action="@{/busInfo}" method="get">
+            <form id="messageForm" th:action="@{/pokemonInfo}" method="get">
                 <fieldset>
-                    <legend>Postcode: </legend>
-                    <input type="text" name="postcode">
-                    <input type="submit" value="Get Bus Info" />
+                    <legend>Name: </legend>
+                    <input placeholder="type a name" type="text" name="name">
+                    <input type="submit" value="Get Pokemon Info" />
                 </fieldset>
             </form>
         </div>

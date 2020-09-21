@@ -6,9 +6,9 @@ public class Pokemon {
   private final String name;
   private final String pictureUrl;
   private final List<String> abilities;
-  private final List<Evolution> evolutions;
+  private final List<String> evolutions;
 
-  public Pokemon(String name, String pictureUrl, List<String> abilities, List<Evolution> evolutions) {
+  public Pokemon(String name, String pictureUrl, List<String> abilities, List<String> evolutions) {
     this.name = name;
     this.pictureUrl = pictureUrl;
     this.abilities = abilities;
@@ -27,7 +27,7 @@ public class Pokemon {
     return abilities;
   }
 
-  public List<Evolution> getEvolutions() {
+  public List<String> getEvolutions() {
     return evolutions;
   }
 }
