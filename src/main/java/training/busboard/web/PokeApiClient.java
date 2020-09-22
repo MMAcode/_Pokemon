@@ -27,6 +27,34 @@ public class PokeApiClient {
         JsonObject speciesData = makeRequest(pokemonData.get("species").getAsJsonObject().get("url").getAsString());
         JsonObject evolutionChainData = makeRequest(speciesData.get("evolution_chain").getAsJsonObject().get("url").getAsString());
 
+        List<String> evolutions = extractEvolutionsFromEvolutionsChain(evolutionChainData);
+
+        // get pokemonIds from pokemon species (=our pokemon evolutions String array)
+                //for each species name(=evolution), get pokemon id from there
+                    //use species name to request species object
+                    //from object, extract pokemon id (and handle special case of name matching requested name)
+        //use ids to get pokemon images
+
+        String pokemonId = extractPokemonIdsFromSinglePokemonSpeciesObject(JsonObject singleSpeciesOb);
+
+        for (String evolution : evolutions){
+            JsonObject data = makeRequest("https://pokeapi.co/api/v2/pokemon-species/" + evolution);
+
+            JsonArray varieties = speciesData.get("varieties").getAsJsonArray();
+            int evolutionsSize = evolutions.size();
+            varieties.forEach(variety -> {
+                if (variety.getAsJsonObject().get("name").getAsString().equals(name)){
+                    String url = variety.getAsJsonObject().get("url").getAsString();
+                    evolutions.add(url.split("pokemon/")[url.split("pokemon/").length-1]);
+                }
+            });
+            if (evolutions.size() == evolutionsSize){
+                String url = varieties.get(0).getAsJsonObject().get("url").getAsString();
+                evolutions.add(url.split("pokemon/")[url.split("pokemon/").length-1]);
+            }
+        }
+
+
         return new Pokemon(
                 extractNameFromPokemon(pokemonData),
                 extractPictureUrlFromPokemon(pokemonData),
@@ -79,4 +107,28 @@ public class PokeApiClient {
 
         return evolutions;
     }
+
+//    private static List<String> extractPokemonIdsFromSpecies(JsonObject data, String name) {
+//        List<String> evolutions = new ArrayList<>();
+//
+//        JsonObject chain = data.getAsJsonObject("chain");
+//        while (true) {
+//            String speciesUrl = chain.get("species").getAsJsonObject().get("url").getAsString();
+//            JsonObject speciesData = makeRequest(speciesUrl);
+//            JsonArray varieties = speciesData.get("varieties").getAsJsonArray();
+//            int evolutionsSize = evolutions.size();
+//            varieties.forEach(variety -> {
+//                if (variety.getAsJsonObject().get("name").getAsString().equals(name)){
+//                    String url = variety.getAsJsonObject().get("url").getAsString();
+//                    evolutions.add(url.split("pokemon/")[url.split("pokemon/").length-1]);
+//                }
+//            });
+//            if (evolutions.size() == evolutionsSize){
+//                String url = varieties.get(0).getAsJsonObject().get("url").getAsString();
+//                evolutions.add(url.split("pokemon/")[url.split("pokemon/").length-1]);
+//            }
+//        }
+//
+//        return evolutions;
+//    }
 }
