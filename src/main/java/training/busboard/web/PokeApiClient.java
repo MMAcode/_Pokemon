@@ -15,28 +15,19 @@ import java.util.List;
 
 public class PokeApiClient {
   public static Pokemon getPokemon(String nameOrId) throws PokemonNotFoundException {
-    JsonObject response = makeRequest("https://pokeapi.co/api/v2/pokemon/" + nameOrId);
-    if (response == null) throw new PokemonNotFoundException("Pokemon " + nameOrId + " not found");
-    String name = response.get("name").getAsString();
-    String pictureUrl = response.get("sprites").getAsJsonObject().get("front_default").getAsString();
-    List<String> abilities = new ArrayList<>();
-    response.get("abilities").getAsJsonArray().forEach(jsonElement -> abilities.add(jsonElement.getAsJsonObject().get("ability").getAsJsonObject().get("name").getAsString()));
-    response = makeRequest(response.get("species").getAsJsonObject().get("url").getAsString());
-    System.out.println(response);
-    response = makeRequest(response.get("evolution_chain").getAsJsonObject().get("url").getAsString());
+    JsonObject pokemonData = makeRequest("https://pokeapi.co/api/v2/pokemon/" + nameOrId);
 
-    List<String> evolutions = new ArrayList<>();
+    if (pokemonData == null) throw new PokemonNotFoundException();
 
-    JsonObject node = response.getAsJsonObject("chain");
+    JsonObject speciesData = makeRequest(pokemonData.get("species").getAsJsonObject().get("url").getAsString());
+    JsonObject evolutionChainData = makeRequest(speciesData.get("evolution_chain").getAsJsonObject().get("url").getAsString());
 
-    while (true) {
-      evolutions.add(node.get("species").getAsJsonObject().get("name").getAsString());
-      JsonArray evolvesTo = node.getAsJsonArray("evolves_to");
-      if (evolvesTo.size() == 0) break;
-      node = evolvesTo.get(0).getAsJsonObject();
-    }
-
-    return new Pokemon(name, pictureUrl, abilities, evolutions);
+    return new Pokemon(
+      extractNameFromPokemon(pokemonData),
+      extractPictureUrlFromPokemon(pokemonData),
+      extractAbilitiesFromPokemon(pokemonData),
+      extractEvolutionsFromEvolutionsChain(evolutionChainData)
+    );
   }
 
   private static JsonObject makeRequest(String url) {
@@ -66,4 +57,35 @@ public class PokeApiClient {
     return null;
   }
 
+  private static String extractNameFromPokemon(JsonObject data) {
+    return data.get("name").getAsString();
+  }
+
+  private static String extractPictureUrlFromPokemon(JsonObject data) {
+    return data.get("sprites").getAsJsonObject().get("front_default").getAsString();
+  }
+
+  private static List<String> extractAbilitiesFromPokemon(JsonObject data) {
+    List<String> abilities = new ArrayList<>();
+    data
+      .get("abilities")
+      .getAsJsonArray()
+      .forEach(jsonElement -> abilities.add(jsonElement.getAsJsonObject().get("ability").getAsJsonObject().get("name").getAsString()));
+    return abilities;
+  }
+
+  private static List<String> extractEvolutionsFromEvolutionsChain(JsonObject data) {
+    List<String> evolutions = new ArrayList<>();
+
+    JsonObject node = data.getAsJsonObject("chain");
+
+    while (true) {
+      evolutions.add(node.get("species").getAsJsonObject().get("name").getAsString());
+      JsonArray evolvesTo = node.getAsJsonArray("evolves_to");
+      if (evolvesTo.size() == 0) break;
+      node = evolvesTo.get(0).getAsJsonObject();
+    }
+
+    return evolutions;
+  }
 }
