@@ -11,22 +11,22 @@ import org.springframework.web.servlet.ModelAndView;
 @EnableAutoConfiguration
 public class Website {
 
-  public static void main(String[] args) {
-    SpringApplication.run(Website.class, args);
-  }
-
-  @RequestMapping("/")
-  ModelAndView home() {
-    return new ModelAndView("index");
-  }
-
-  @RequestMapping("/pokemonInfo")
-  ModelAndView pokemonInfo(@RequestParam("nameOrId") String nameOrId) {
-    try {
-      return new ModelAndView("info", "pokemon", PokeApiClient.getPokemon(nameOrId));
-    } catch (PokemonNotFoundException e) {
-      return new ModelAndView("not-found", "", null);
+    public static void main(String[] args) {
+        SpringApplication.run(Website.class, args);
     }
-  }
+
+    @RequestMapping("/")
+    ModelAndView home() {
+        return new ModelAndView("index");
+    }
+
+    @RequestMapping("/pokemonInfo")
+    ModelAndView pokemonInfo(@RequestParam("nameOrId") String nameOrId) {
+        try {
+            return new ModelAndView("info", "pokemon", PokeApiClient.getPokemon(nameOrId));
+        } catch (PokemonNotFoundException e) {
+            return new ModelAndView("not-found", "", null);
+        }
+    }
 
 }
