@@ -1,28 +1,28 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html layout:decorate="layout"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="layout">
+      xmlns:th="http://www.thymeleaf.org">
 
-    <!--@thymesVar id="busInfo" type="training.busboard.web.BusInfo"-->
+<!--@thymesVar id="busInfo" type="training.busboard.web.BusInfo"-->
 
-    <head>
-        <title></title>
-    </head>
-    <body>
-        <div layout:fragment="content" class="container body-content">
-            <h2>Pokemon Information</h2>
-            <div>
-                <img th:src="${pokemon.pictureUrl}"/>
-                <h2 th:text="${pokemon.name}"></h2>
-                <h4>Abilities</h4>
-                <ul>
-                    <li th:each="ability : ${pokemon.abilities}" th:text="${ability}"></li>
-                </ul>
-                <h4>Evolutions</h4>
-                <ul>
-                    <li th:each="evolution : ${pokemon.evolutions}" th:text="${evolution}"></li>
-                </ul>
-            </div>
-        </div>
-    </body>
+<head>
+    <title></title>
+</head>
+<body>
+<div class="container body-content" layout:fragment="content">
+    <h2>Pokemon Information</h2>
+    <div>
+        <img th:src="${pokemon.pictureUrl}"/>
+        <h2 th:text="${pokemon.name}"></h2>
+        <h4>Abilities</h4>
+        <ul>
+            <li th:each="ability : ${pokemon.abilities}" th:text="${ability}"></li>
+        </ul>
+        <h4>Evolutions</h4>
+        <ul>
+            <li th:each="evolution : ${pokemon.evolutions}" th:text="${evolution}"></li>
+        </ul>
+    </div>
+</div>
+</body>
 </html>

@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html layout:decorate="layout"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="layout">
+      xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Home page</title>
 </head>
 <body>
-<div layout:fragment="content" class="container body-content">
+<div class="container body-content" layout:fragment="content">
     <div class="row">
         <div class="col-md-12">
-            <form id="messageForm" th:action="@{/pokemonInfo}" method="get">
+            <form id="messageForm" method="get" th:action="@{/pokemonInfo}">
                 <fieldset>
-                    <legend>Name: </legend>
-                    <input placeholder="type a name" type="text" name="nameOrId">
-                    <input type="submit" value="Get Pokemon Info" />
+                    <legend>Name:</legend>
+                    <input name="nameOrId" placeholder="type a name" type="text">
+                    <input type="submit" value="Get Pokemon Info"/>
                 </fieldset>
             </form>
         </div>
