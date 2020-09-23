@@ -22,11 +22,19 @@
         <ul>
 <!--            <li th:each="evolution : ${pokemon.evolutions}" th:text="${evolution}"></li>-->
 <!--            <li th:each="pokemonId : ${pokemon.pokemonIds}" th:text="${pokemonId}"></li>-->
-            <li th:each="evolution2 : ${pokemon.evolutions2}">
-                <p th:text="${evolution2[0]}"></p>
-<!--                <img th:src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evolution2[1]}.png`/>-->
-                <img th:src="${evolution2[1]}"/>
+<!--            <li th:each="evolution2 : ${pokemon.evolutions2}">-->
+<!--                <p th:text="${evolution2[0]}"></p>-->
+<!--&lt;!&ndash;                <img th:src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evolution2[1]}.png`/>&ndash;&gt;-->
+<!--                <img th:src="${evolution2[1]}"/>-->
+<!--            </li>-->
+            <li th:each="evolution : ${pokemon.evolutions}">
+                <p th:text="${evolution.name}"></p>
+                <!--                <img th:src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evolution2[1]}.png`/>-->
+                <img th:src="${evolution.pictureUrl}"/>
             </li>
+
+
+
         </ul>
     </div>
 </div>

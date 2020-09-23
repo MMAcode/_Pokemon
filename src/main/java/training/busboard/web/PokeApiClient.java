@@ -5,16 +5,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,32 +19,32 @@ public class PokeApiClient {
         JsonObject evolutionChainUnprocessedObject = makeRequest(speciesUnprocessedObject.get("evolution_chain").getAsJsonObject().get("url").getAsString());
 
         List<String> speciesNamesInEvolutionOrder = extractEvolutionsFromEvolutionsChain(evolutionChainUnprocessedObject);
-        ///////Miro Code
-        //naming
-        //pokemon:id, name, species(1), evolutionChain(1)id;
-        //evolutions: gets speciesIds
-        //species : get pokemonIds
         String ourPokemonId = pokemonUnprocessedObject.get("id").getAsString();
+
+
+        //merge urls and class names to evolutions
+        List<String> imageUrls = getPokemonImageUrlsFromSpeciesNames(speciesNamesInEvolutionOrder, ourPokemonId);
+        List<Evolution> evolutions = new ArrayList<>();
+        for (int i = 0; i < imageUrls.size(); i++){
+            evolutions.add(new Evolution(speciesNamesInEvolutionOrder.get(i),imageUrls.get(i)));
+        }
 
         return new Pokemon(
                 extractNameFromPokemon(pokemonUnprocessedObject),
                 extractPictureUrlFromPokemon(pokemonUnprocessedObject),
                 extractAbilitiesFromPokemon(pokemonUnprocessedObject),
-                extractEvolutionsFromEvolutionsChain(evolutionChainUnprocessedObject),
-                getPokemonIdsFromSpeciesNames(speciesNamesInEvolutionOrder, ourPokemonId)
+                evolutions
         );
     }
 
-    private static ArrayList<String> getPokemonIdsFromSpeciesNames(List<String> speciesNamesInEvolutionOrder, String ourPokemonId) {
-        ArrayList<String> pokemonsIds = new ArrayList<>();
+    private static ArrayList<String> getPokemonImageUrlsFromSpeciesNames(List<String> speciesNamesInEvolutionOrder, String ourPokemonId) {
+        ArrayList<String> pokemonImageUrls = new ArrayList<>();
         for (int i = 0; i < speciesNamesInEvolutionOrder.size(); i++) {
             JsonObject unprocessedSingleSpeciesObject = makeRequest("https://pokeapi.co/api/v2/pokemon-species/" + speciesNamesInEvolutionOrder.get(i));
             String pokemonId = getPokemonIdFromUnprocessedSingleSpeciesObject(unprocessedSingleSpeciesObject, ourPokemonId);
-            String imageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + pokemonId + ".png";
-            //pokemonsIds.add(pokemonId);
-            pokemonsIds.add(imageUrl);
+            pokemonImageUrls.add("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + pokemonId + ".png");
         }
-        return pokemonsIds;
+        return pokemonImageUrls;
     }
 
     private static String getPokemonIdFromUnprocessedSingleSpeciesObject(JsonObject singleSpeciesObject, String ourPokemonId) {
