@@ -25,7 +25,7 @@ public class Website {
         try {
             return new ModelAndView("info", "pokemon", PokeApiClient.getPokemon(nameOrId));
         } catch (PokemonNotFoundException e) {
-            return new ModelAndView("not-found", "", null);
+            return new ModelAndView("not-found");
         }
     }
 
