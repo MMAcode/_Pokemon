@@ -21,8 +21,6 @@ public class PokeApiClient {
         List<String> speciesNamesInEvolutionOrder = extractEvolutionsFromEvolutionsChain(evolutionChainUnprocessedObject);
         String ourPokemonId = pokemonUnprocessedObject.get("id").getAsString();
 
-
-        //merge urls and class names to evolutions
         List<String> imageUrls = getPokemonImageUrlsFromSpeciesNames(speciesNamesInEvolutionOrder, ourPokemonId);
         List<Evolution> evolutions = new ArrayList<>();
         for (int i = 0; i < imageUrls.size(); i++){
@@ -48,11 +46,9 @@ public class PokeApiClient {
     }
 
     private static String getPokemonIdFromUnprocessedSingleSpeciesObject(JsonObject singleSpeciesObject, String ourPokemonId) {
-        String pokemonIdToReturn = "";
         String firstPokemonId = "";
         JsonArray varieties = singleSpeciesObject.get("varieties").getAsJsonArray();
 
-        //try to find pokemon with our id. If found, add it to local pokemonId variable;
         for (int i = 0; i < varieties.size(); i++) {
             JsonObject variety = varieties.get(i).getAsJsonObject();
             String url = variety.getAsJsonObject().get("pokemon").getAsJsonObject().get("url").getAsString();
@@ -60,7 +56,6 @@ public class PokeApiClient {
             if (localPokemonIdToCheck.equals(ourPokemonId)) return ourPokemonId;
             if (i==0) firstPokemonId = localPokemonIdToCheck;
         }
-        //if our pokemon was not within this single species (=this evolution stage)...
         return firstPokemonId;
     }
 
