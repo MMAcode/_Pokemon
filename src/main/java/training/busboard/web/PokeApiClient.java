@@ -15,17 +15,11 @@ public class PokeApiClient {
         JsonObject pokemonUnprocessedObject = makeRequest("https://pokeapi.co/api/v2/pokemon/" + nameOrId);
 
         if (pokemonUnprocessedObject == null) throw new PokemonNotFoundException();
-        JsonObject speciesUnprocessedObject = makeRequest(pokemonUnprocessedObject.get("species").getAsJsonObject().get("url").getAsString());
-        JsonObject evolutionChainUnprocessedObject = makeRequest(speciesUnprocessedObject.get("evolution_chain").getAsJsonObject().get("url").getAsString());
 
-        List<String> speciesNamesInEvolutionOrder = extractEvolutionsFromEvolutionsChain(evolutionChainUnprocessedObject);
-        String ourPokemonId = pokemonUnprocessedObject.get("id").getAsString();
 
-        List<String> imageUrls = getPokemonImageUrlsFromSpeciesNames(speciesNamesInEvolutionOrder, ourPokemonId);
-        List<Evolution> evolutions = new ArrayList<>();
-        for (int i = 0; i < imageUrls.size(); i++){
-            evolutions.add(new Evolution(speciesNamesInEvolutionOrder.get(i),imageUrls.get(i)));
-        }
+        List<Evolution> evolutions = getPokemonImageUrlsFromSpeciesNames(pokemonUnprocessedObject);
+
+
 
         return new Pokemon(
                 extractNameFromPokemon(pokemonUnprocessedObject),
@@ -35,17 +29,42 @@ public class PokeApiClient {
         );
     }
 
-    private static ArrayList<String> getPokemonImageUrlsFromSpeciesNames(List<String> speciesNamesInEvolutionOrder, String ourPokemonId) {
-        ArrayList<String> pokemonImageUrls = new ArrayList<>();
-        for (int i = 0; i < speciesNamesInEvolutionOrder.size(); i++) {
-            JsonObject unprocessedSingleSpeciesObject = makeRequest("https://pokeapi.co/api/v2/pokemon-species/" + speciesNamesInEvolutionOrder.get(i));
-            String pokemonId = getPokemonIdFromUnprocessedSingleSpeciesObject(unprocessedSingleSpeciesObject, ourPokemonId);
-            pokemonImageUrls.add("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + pokemonId + ".png");
+
+//    private static ArrayList<String> getPokemonImageUrlsFromSpeciesNames(List<String> speciesNamesInEvolutionOrder, String ourPokemonId) {
+//        ArrayList<String> pokemonImageUrls = new ArrayList<>();
+//        for (int i = 0; i < speciesNamesInEvolutionOrder.size(); i++) {
+//            JsonObject unprocessedSingleSpeciesObject = makeRequest("https://pokeapi.co/api/v2/pokemon-species/" + speciesNamesInEvolutionOrder.get(i));
+//            String pokemonId = getPokemonIdFromUnprocessedSingleSpeciesObject(unprocessedSingleSpeciesObject, ourPokemonId);
+//            pokemonImageUrls.add("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + pokemonId + ".png");
+//        }
+//        return pokemonImageUrls;
+//    }
+
+    private static List<Evolution> getPokemonImageUrlsFromSpeciesNames(JsonObject pokemonUnprocessedObject) {
+
+        JsonObject speciesUnprocessedObject = makeRequest(pokemonUnprocessedObject.get("species").getAsJsonObject().get("url").getAsString());
+        JsonObject evolutionChainUnprocessedObject = makeRequest(speciesUnprocessedObject.get("evolution_chain").getAsJsonObject().get("url").getAsString());
+        List<String> speciesNames = extractEvolutionsFromEvolutionsChain(evolutionChainUnprocessedObject);
+
+        ArrayList<JsonObject> allSpecies = new ArrayList<>();
+        speciesNames.forEach(name->allSpecies.add(makeRequest("https://pokeapi.co/api/v2/pokemon-species/" + name)));
+
+        ArrayList<String> imageUrls = new ArrayList<>();
+        String ourPokemonId = pokemonUnprocessedObject.get("id").getAsString();
+        allSpecies.forEach(speciesObject-> {
+            String pokemonId = getPokemonId(speciesObject, ourPokemonId);
+            imageUrls.add("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + pokemonId + ".png");
+        });
+
+        List<Evolution> evolutions = new ArrayList<>();
+        for (int i = 0; i < imageUrls.size(); i++){
+            evolutions.add(new Evolution(speciesNames.get(i),imageUrls.get(i)));
         }
-        return pokemonImageUrls;
+        return evolutions;
     }
 
-    private static String getPokemonIdFromUnprocessedSingleSpeciesObject(JsonObject singleSpeciesObject, String ourPokemonId) {
+
+    private static String getPokemonId(JsonObject singleSpeciesObject, String ourPokemonId) {
         String firstPokemonId = "";
         JsonArray varieties = singleSpeciesObject.get("varieties").getAsJsonArray();
 
@@ -58,6 +77,7 @@ public class PokeApiClient {
         }
         return firstPokemonId;
     }
+
 
     private static JsonObject makeRequest(String url) {
         try {
